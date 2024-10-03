@@ -24,9 +24,3 @@ data "azurerm_subnet" "container_env_subnet" {
   virtual_network_name = data.azurerm_virtual_network.vnet.name
   resource_group_name  = local.shared_rg_name
 }
-
-data "azurerm_subnet" "sql_subnet" {
-  name                 = local.vnet.subnets.sql.name
-  virtual_network_name = data.azurerm_virtual_network.vnet.name
-  resource_group_name  = local.shared_rg_name
-}
