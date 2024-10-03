@@ -131,15 +131,15 @@ resource "azurerm_mssql_database" "sql_db" {
   server_id = azurerm_mssql_server.sql_server.id
   collation = "SQL_Latin1_General_CP1_CI_AS"
 
-  sku_name                    = "GP_S_Gen5_2"
+  sku_name                    = "GP_S_Gen5_1"
   auto_pause_delay_in_minutes = 60
   zone_redundant              = false
   max_size_gb                 = 32
   min_capacity                = 0.5
   read_replica_count          = 0
   read_scale                  = false
-
-  tags = local.tags
+  storage_account_type        = "Local"
+  tags                        = local.tags
 
   # prevent the possibility of accidental data loss
   lifecycle {
