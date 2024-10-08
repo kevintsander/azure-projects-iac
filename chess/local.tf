@@ -17,7 +17,7 @@ locals {
   }
 
   api = {
-    name = "cntapp-sander-chess-${var.env}-01"
+    name = "cntapp-sander-chess-${var.env}-03"
     container = {
       name     = "chess-api"
       env_name = "cntenv-sander-chess-01"
