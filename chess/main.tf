@@ -5,7 +5,7 @@ resource "azurerm_resource_group" "rg" {
 
 # Container
 resource "azurerm_container_app_environment" "container_env" {
-  name                     = local.app.container.env_name
+  name                     = local.api.container.env_name
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   tags                     = local.tags
@@ -18,14 +18,14 @@ resource "azurerm_container_app" "api" {
   resource_group_name          = azurerm_resource_group.rg.name
   revision_mode                = "Single"
 
-  identity {
-    type = "SystemAssigned"
-  }
-
   # identity {
-  #   type         = "UserAssigned"
-  #   identity_ids = [data.azurerm_user_assigned_identity.shared_identity.id]
+  #   type = "SystemAssigned"
   # }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [data.azurerm_user_assigned_identity.shared_identity.id]
+  }
 
   # secret {
   #   name                = local.key_vault.secret_names.sql_server_admin_password
@@ -91,6 +91,26 @@ resource "azurerm_container_app" "api" {
   tags = local.tags
 }
 
+resource "azuread_application_registration" "app_reg" {
+  display_name = local.app_name
+}
+
+resource "azuread_service_principal" "app_sp" {
+  client_id = azuread_application_registration.app_reg.client_id
+}
+
+resource "azurerm_role_assignment" "app_sp_key_vault_officer" {
+  principal_id         = azuread_service_principal.api_sp.id
+  role_definition_name = "Key Vault Officer"
+  scope                = data.azurerm_key_vault.key_vault.id
+}
+
+resource "azurerm_role_assignment" "app_sp_chess_rg_contributor" {
+  principal_id         = azuread_service_principal.api_sp.id
+  role_definition_name = "Contributor"
+  scope                = azurerm_resource_group.rg.id
+}
+
 # SQL
 # TODO - move this to shared
 resource "azurerm_mssql_server" "sql_server" {
@@ -137,4 +157,10 @@ resource "azurerm_mssql_database" "sql_db" {
   lifecycle {
     prevent_destroy = false
   }
+}
+
+resource "azurerm_static_web_app" "ui" {
+  name                = local.ui.name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = "eastus2" // not available in north central currently
 }

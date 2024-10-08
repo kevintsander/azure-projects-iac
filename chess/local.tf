@@ -1,4 +1,6 @@
 locals {
+  app_name = "chess"
+
   resource_group_name = "rg-sander-chess-${var.env}-01"
 
   key_vault = {
@@ -11,21 +13,19 @@ locals {
   sql = {
     server_name = "sqlsrv-sander-shared-${var.env}-03"
     db_name     = "chess-${var.env}-01"
-    port        = 1433
     admin_name  = "sanderkt"
   }
 
-  app = {
+  api = {
     name = "cntapp-sander-chess-${var.env}-01"
     container = {
       name     = "chess-api"
       env_name = "cntenv-sander-chess-01"
-      registry = {
-        image    = "kevintsander/chess-api:main"
-        server   = "ghcr.io"
-        username = "kevintsander@gmail.com"
-      }
     }
+  }
+
+  ui = {
+    name = "stwebapp-sander-chess-dev-01"
   }
 
   tags = {
