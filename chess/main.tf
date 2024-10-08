@@ -100,13 +100,13 @@ resource "azuread_service_principal" "app_sp" {
 }
 
 resource "azurerm_role_assignment" "app_sp_key_vault_officer" {
-  principal_id         = azuread_service_principal.app_sp.id
-  role_definition_name = "Key Vault Officer"
+  principal_id         = azuread_service_principal.app_sp.object_id
+  role_definition_name = "Key Vault Secrets Officer"
   scope                = data.azurerm_key_vault.key_vault.id
 }
 
 resource "azurerm_role_assignment" "app_sp_chess_rg_contributor" {
-  principal_id         = azuread_service_principal.app_sp.id
+  principal_id         = azuread_service_principal.app_sp.object_id
   role_definition_name = "Contributor"
   scope                = azurerm_resource_group.rg.id
 }
