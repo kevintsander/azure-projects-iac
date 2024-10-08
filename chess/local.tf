@@ -4,8 +4,7 @@ locals {
   key_vault = {
     name = "kv-sander-shared-${var.env}-05"
     secret_names = {
-      github_container_registry_password = "github-container-registry-password",
-      sql_server_admin_password          = "chess-sql-server-admin-password",
+      sql_server_admin_password = "chess-sql-server-admin-password",
     }
   }
 

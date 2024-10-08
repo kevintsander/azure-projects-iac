@@ -13,71 +13,63 @@ resource "azurerm_container_app_environment" "container_env" {
 }
 
 resource "azurerm_container_app" "api" {
-  name                         = local.app.name
+  name                         = local.api.name
   container_app_environment_id = azurerm_container_app_environment.container_env.id
   resource_group_name          = azurerm_resource_group.rg.name
   revision_mode                = "Single"
 
   identity {
-    type         = "UserAssigned"
-    identity_ids = [data.azurerm_user_assigned_identity.shared_identity.id]
+    type = "SystemAssigned"
   }
 
-  secret {
-    name                = local.key_vault.secret_names.github_container_registry_password
-    key_vault_secret_id = data.azurerm_key_vault_secret.key_vault_secret["github_container_registry_password"].versionless_id
-    identity            = data.azurerm_user_assigned_identity.shared_identity.id
-  }
+  # identity {
+  #   type         = "UserAssigned"
+  #   identity_ids = [data.azurerm_user_assigned_identity.shared_identity.id]
+  # }
 
-  secret {
-    name                = local.key_vault.secret_names.sql_server_admin_password
-    key_vault_secret_id = data.azurerm_key_vault_secret.key_vault_secret["sql_server_admin_password"].versionless_id
-    identity            = data.azurerm_user_assigned_identity.shared_identity.id
-  }
-
-  registry {
-    server               = local.app.container.registry.server
-    username             = local.app.container.registry.username
-    password_secret_name = local.key_vault.secret_names.github_container_registry_password
-  }
+  # secret {
+  #   name                = local.key_vault.secret_names.sql_server_admin_password
+  #   key_vault_secret_id = data.azurerm_key_vault_secret.key_vault_secret["sql_server_admin_password"].versionless_id
+  #   identity            = data.azurerm_user_assigned_identity.shared_identity.id
+  # }
 
   template {
     container {
-      name   = local.app.container.name
+      name   = local.api.name
       cpu    = 0.25
       memory = "0.5Gi"
-      image  = "${local.app.container.registry.server}/${local.app.container.registry.image}"
+      image  = "mcr.microsoft.com/azuredocs/aci-helloworld" // placeholder, will be replaced on app deployment
 
 
-      env {
-        name  = "CHESS_SQL_DB_NAME"
-        value = local.sql.db_name
-      }
+      # env {
+      #   name  = "CHESS_SQL_DB_NAME"
+      #   value = local.sql.db_name
+      # }
 
-      env {
-        name  = "CHESS_SQL_HOST"
-        value = azurerm_mssql_server.sql_server.fully_qualified_domain_name
-      }
+      # env {
+      #   name  = "CHESS_SQL_HOST"
+      #   value = azurerm_mssql_server.sql_server.fully_qualified_domain_name
+      # }
 
-      env {
-        name  = "CHESS_SQL_PORT"
-        value = local.sql.port
-      }
+      # env {
+      #   name  = "CHESS_SQL_PORT"
+      #   value = local.sql.port
+      # }
 
-      env {
-        name  = "CHESS_SQL_USERNAME"
-        value = local.sql.admin_name
-      }
+      # env {
+      #   name  = "CHESS_SQL_USERNAME"
+      #   value = local.sql.admin_name
+      # }
 
-      env {
-        name        = "CHESS_SQL_PASSWORD"
-        secret_name = local.key_vault.secret_names.sql_server_admin_password
-      }
+      # env {
+      #   name        = "CHESS_SQL_PASSWORD"
+      #   secret_name = local.key_vault.secret_names.sql_server_admin_password
+      # }
 
-      env {
-        name  = "CHESS_SQL_AZURE"
-        value = "true"
-      }
+      # env {
+      #   name  = "CHESS_SQL_AZURE"
+      #   value = "true"
+      # }
 
     }
   }
