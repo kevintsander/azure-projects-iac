@@ -94,8 +94,15 @@ resource "azurerm_container_app" "api" {
 resource "azuread_application_registration" "app_reg" {
   display_name = local.app_name
 }
+
 resource "azuread_service_principal" "app_sp" {
   client_id = azuread_application_registration.app_reg.client_id
+}
+
+resource "azurerm_role_assignment" "shared_identity_role_assignment" {
+  principal_id         = azuread_service_principal.app_sp.object_id
+  role_definition_name = "Managed Identity Operator"
+  scope                = data.azurerm_user_assigned_identity.shared_identity.id
 }
 
 resource "azurerm_role_assignment" "app_sp_key_vault_officer" {
